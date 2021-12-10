@@ -16,11 +16,14 @@
 
 ### Requirements
 * [Gatsby CLI](https://www.npmjs.com/package/gatsby-cli)
+```
 npm install -g gatsby-cli
+```
 
 * [Yarn](https://yarnpkg.com/en/)
+```
 npm install -g yarn
-
+```
 ### Quick Start
 Clone this repository:
 ```
