@@ -22,6 +22,11 @@ npm install -g gatsby-cli
 npm install -g yarn
 
 ### Quick Start
+Clone this repository:
+```
+git clone https://github.com/Jnathan0/covid-dashboard.git
+```
+
 Navigate to the root project directory.
 Run the following in your terminal:
 ```
