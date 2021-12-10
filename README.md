@@ -31,5 +31,5 @@ yarn develop
 if you get an error about SASS module, run the following:
 ```
 npm install sass --legacy-peer-deps
-
+```
 After this, you should be able to access the project on default localhost:8000
