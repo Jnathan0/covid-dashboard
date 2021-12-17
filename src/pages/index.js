@@ -19,6 +19,14 @@ import { useTable, useSortBy } from "react-table";
 import 'react-tabs/style/react-tabs.css';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 
+//material-ui styling imports
+import CssBaseline from '@material-ui/core/CssBaseline';
+import MaUTable from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+
 
 const FORMATTER = new Intl.NumberFormat();
 
@@ -339,40 +347,43 @@ const IndexPage = () => {
       },
       useSortBy,
   );
-    return (
-      <table {...getTableProps()}>
-          
-        <thead>
+    return(
+      <MaUTable {...getTableProps()}>
+        <TableHead>
           {headerGroups.map(headerGroup => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
+            <TableRow {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map(column => (
-                <th {...column.getHeaderProps(column.getSortByToggleProps())}
-                className={
+                <TableCell {...column.getHeaderProps(column.getSortByToggleProps())}
+                  className={
                     column.isSorted
                       ? column.isSortedDesc
-                          ? "sort-desc"
-                          : "sort-asc"
+                        ? "sort-desc"
+                        : "sort-asc"
                       : ""
-                }
-                >{column.render("Header")}
-                </th>
+                  }>
+                  {column.render('Header')}
+                </TableCell>
               ))}
-            </tr>
+            </TableRow>
           ))}
-        </thead>
-        <tbody {...getTableBodyProps()}>
+        </TableHead>
+        <TableBody>
           {rows.map((row, i) => {
-            prepareRow(row);
+            prepareRow(row)
             return (
-              <tr {...row.getRowProps()}>
+              <TableRow {...row.getRowProps()}>
                 {row.cells.map(cell => {
-                  return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
+                  return (
+                    <TableCell {...cell.getCellProps()}>
+                      {cell.render('Cell')}
+                    </TableCell>
+                  )
                 })}
-              </tr>
-            );
+              </TableRow>
+            )
           })}
-        </tbody>
-      </table>
+        </TableBody>
+      </MaUTable>
     );
 
   }
