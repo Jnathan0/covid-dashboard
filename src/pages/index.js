@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet";
 import L from "leaflet";
 import { useMap } from "react-leaflet";
@@ -12,12 +12,19 @@ import Container from "components/Container";
 import Map from "components/Map";
 import Snippet from "components/Snippet";
 
+//imports for tables
+import { useTable, useSortBy } from "react-table";
+
+
 const LOCATION = {
   lat: 34.0522,
   lng: -118.2437,
 };
 const CENTER = [LOCATION.lat, LOCATION.lng];
 const DEFAULT_ZOOM = 2;
+
+
+
 
 
 const IndexPage = () => {
@@ -152,6 +159,152 @@ const IndexPage = () => {
     whenCreated: mapEffect,
   };
 
+
+
+
+  /***********************
+   * BEGIN CODE FOR TABLE*
+   ***********************/
+
+
+
+   const [data, setData] = useState([]);
+
+   useEffect(() => {
+     (async () => {
+       const result = await axios('https://corona.lmao.ninja/v2/countries');
+       setData(result.data);
+     })();
+   }, []);
+
+
+
+   const columns = useMemo(
+    () => [
+      {
+        Header: "Country",
+        columns: [
+          {
+            accessor: "countryInfo.flag",
+            Cell: ({ cell: { value }}) => (
+              <div className="country_flag">
+                <img
+                  src={value} alt={value} width={"15%"} height={"auto"}
+                />
+              </div>
+            )
+          },
+          {
+            Header: "Name",
+            accessor: "country"
+          },
+          {
+            Header: "Code",
+            accessor: "countryInfo.iso3",
+
+
+          }
+        ]
+      },
+      {
+        Header: "Details",
+
+        columns: [
+          {
+            Header: "Cases",
+            accessor: "cases"
+          },
+          {
+            Header: "Deaths",
+            accessor: "deaths"
+          },
+          {
+            Header: "Recovered",
+            accessor: "recovered"
+          },
+          {
+            Header: "Cases Per One Million",
+            accessor: "casesPerOneMillion"
+          },
+          {
+            Header: "Deaths Per One Million",
+            accessor: "deathsPerOneMillion"
+          }
+        ]
+      }
+    ],
+    []
+  );
+
+
+
+  function Table({ columns, data }) {
+    const{
+      getTableProps,
+      getTableBodyProps,
+      headerGroups,
+      rows,
+      prepareRow,
+    } = useTable(
+      {
+          columns,
+          data,
+          initialState: { // Make the default state of the table sort by desc of global cases
+              sortBy: [
+                  {
+                      id: "cases",
+                      desc: true
+                  }
+              ]
+          }
+      },
+      useSortBy,
+  );
+    return (
+      <table {...getTableProps()}>
+          
+        <thead>
+          {headerGroups.map(headerGroup => (
+            <tr {...headerGroup.getHeaderGroupProps()}>
+              {headerGroup.headers.map(column => (
+                <th {...column.getHeaderProps(column.getSortByToggleProps())}
+                className={
+                    column.isSorted
+                      ? column.isSortedDesc
+                          ? "sort-desc"
+                          : "sort-asc"
+                      : ""
+                }
+                >{column.render("Header")}
+                </th>
+              ))}
+            </tr>
+          ))}
+        </thead>
+        <tbody {...getTableBodyProps()}>
+          {rows.map((row, i) => {
+            prepareRow(row);
+            return (
+              <tr {...row.getRowProps()}>
+                {row.cells.map(cell => {
+                  return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
+                })}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    );
+
+  }
+
+
+
+
+  /***********************
+   * END CODE FOR TABLE  *
+   ***********************/
+
   return (
     <Layout pageName="home">
       <Helmet>
@@ -188,7 +341,7 @@ const IndexPage = () => {
   </div>
 
   <Container type="content" className="text-center home-start"> 
-    <h3>It has  covid stats via markers on our map, and stas shown in a dashboard... lots of fun!</h3>
+        <Table columns={columns} data={data}/>
     </Container>
   </Layout>
   );
