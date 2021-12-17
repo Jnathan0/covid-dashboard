@@ -15,6 +15,13 @@ import Snippet from "components/Snippet";
 //imports for tables
 import { useTable, useSortBy } from "react-table";
 
+//react tabs
+import 'react-tabs/style/react-tabs.css';
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+
+
+const FORMATTER = new Intl.NumberFormat();
+
 
 const LOCATION = {
   lat: 34.0522,
@@ -265,9 +272,8 @@ const IndexPage = () => {
             },
             {
               Header: "Population",
-              accessor: "population",
-  
-  
+              accessor: "population"
+
             }
           ]
         },
@@ -414,7 +420,20 @@ const IndexPage = () => {
   </div>
 
   <Container type="content" className="text-center home-start"> 
-        <Table columns={state_columns} data={state_data}/>
+      <Tabs>
+        <TabList>
+          <Tab>Global Table</Tab>
+          <Tab>US Table</Tab>
+        </TabList>
+
+        <TabPanel>
+          <Table columns={global_columns} data={global_data}/>
+        </TabPanel>
+
+        <TabPanel>
+          <Table columns={state_columns} data={state_data}/>
+        </TabPanel>
+      </Tabs>
     </Container>
   </Layout>
   );
