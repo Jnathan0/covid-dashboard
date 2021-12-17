@@ -167,19 +167,32 @@ const IndexPage = () => {
    ***********************/
 
 
-
-   const [data, setData] = useState([]);
+  /* FUNCTION FOR RETREIVING ENDPOINT FOR GLOBAL COVID DATA */
+   const [global_data, setGlobalData] = useState([]);
 
    useEffect(() => {
      (async () => {
        const result = await axios('https://corona.lmao.ninja/v2/countries');
-       setData(result.data);
+       setGlobalData(result.data);
      })();
    }, []);
 
 
+  /* FUNCTION FOR RETREIVING ENDPOINT FOR UNITED STATES COVID DATA */
+   const [state_data, setStateData] = useState([]);
 
-   const columns = useMemo(
+   useEffect(() => {
+     (async () => {
+       const result = await axios('https://corona.lmao.ninja/v2/states');
+       setStateData(result.data);
+     })();
+   }, []);
+
+
+   /*********************************************************************** 
+   * Define the columns we want from the API for all the world wide stats *
+   ************************************************************************/
+   const global_columns = useMemo(
     () => [
       {
         Header: "Country",
@@ -235,6 +248,66 @@ const IndexPage = () => {
     ],
     []
   );
+
+
+
+   /*********************************************************************** 
+   * Define the columns we want from the API for all the US STATES stats *
+   ************************************************************************/
+    const state_columns = useMemo(
+      () => [
+        {
+          Header: "State",
+          columns: [
+            {
+              Header: "Name",
+              accessor: "state"
+            },
+            {
+              Header: "Population",
+              accessor: "population",
+  
+  
+            }
+          ]
+        },
+        {
+          Header: "Details",
+  
+          columns: [
+            {
+              Header: "Cases",
+              accessor: "cases"
+            },
+            {
+              Header: "Deaths",
+              accessor: "deaths"
+            },
+            {
+              Header: "Recovered",
+              accessor: "recovered"
+            },
+            {
+              Header: "Cases Per One Million",
+              accessor: "casesPerOneMillion"
+            },
+            {
+              Header: "Deaths Per One Million",
+              accessor: "deathsPerOneMillion"
+            },
+            {
+              Header: "Tests",
+              accessor: "tests"
+            },
+            {
+              Header: "Tests Per One Million",
+              accessor: "testsPerOneMillion"
+            }
+          ]
+        }
+      ],
+      []
+    );
 
 
 
@@ -341,7 +414,7 @@ const IndexPage = () => {
   </div>
 
   <Container type="content" className="text-center home-start"> 
-        <Table columns={columns} data={data}/>
+        <Table columns={state_columns} data={state_data}/>
     </Container>
   </Layout>
   );
