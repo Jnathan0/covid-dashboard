@@ -15,20 +15,31 @@ import Snippet from "components/Snippet";
 //imports for tables
 import { useTable, useSortBy } from "react-table";
 
+//imports for line chart
+import ReactApexChart from "react-apexcharts";
+import ApexCharts from "apexcharts";
+
+// import for pie chart
+import { PieChart } from 'react-minimal-pie-chart';
+
+
 //react tabs
 import 'react-tabs/style/react-tabs.css';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 
 //material-ui styling imports
-import CssBaseline from '@material-ui/core/CssBaseline';
 import MaUTable from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import CssBaseline from '@material-ui/core/CssBaseline';
+
+var pieData = [];
+var hasPopulatedPieData = false;
+let response;
 
 
-const FORMATTER = new Intl.NumberFormat();
 
 
 const LOCATION = {
@@ -118,7 +129,19 @@ const IndexPage = () => {
         const { properties = {} } = feature;
         let updatedFormatted;
         let casesString;
-    
+        /* PIE CHART CODE */
+        if(!hasPopulatedPieData) {
+          //if(pieData.length === 0) {
+            for(let j=0; j < geoJson.features.length; j++) {
+              if(geoJson.features[j].properties.cases > 5000000) {
+                //console.log(geoJson.features[j]);
+                pieData.push({ title: geoJson.features[j].properties.country, value: geoJson.features[j].properties.cases, color: '#'+Math.floor(Math.random()*16777215).toString(16) });
+              }
+            }
+            console.log(geoJson);
+            hasPopulatedPieData = true;
+          }
+        /* END PIE CHART CODE */
         const {
           country,
           updated,
@@ -361,7 +384,7 @@ const IndexPage = () => {
                         : "sort-asc"
                       : ""
                   }>
-                  {column.render('Header')}
+                  {column.render('Header')}                    
                 </TableCell>
               ))}
             </TableRow>
@@ -395,6 +418,112 @@ const IndexPage = () => {
    * END CODE FOR TABLE  *
    ***********************/
 
+
+
+  /******************************
+   * BEGIN CODE FOR LINE GRAPH  *
+   ******************************/
+
+
+  
+   async function obtainData() {
+    const response = await axios.get(
+        "https://corona.lmao.ninja/v3/covid-19/historical/all?lastdays=all"
+    );
+    return response.data;
+}
+
+function GlobalTrendGraphFunction(){
+
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    useEffect(() => {
+      (async () => {
+        try {
+          // set loading to true before calling API
+          setLoading(true);
+          const data = await obtainData();
+          console.log(data);
+          console.log("HELLO MOM I MADE IT");
+          setData(data);
+          // switch loading to false after fetch is complete
+          setLoading(false);
+        } catch (error) {
+          // add error handling here
+          setLoading(false);
+          console.log(error);
+        }
+      })();
+    }, []);
+
+        let series = [
+      {
+          name: "Global Cases",
+          // amount of cases
+          data: [],
+      },
+  ];
+
+  console.log(series);
+  let options = {
+      chart: {
+          height: 350,
+          type: "line",
+          zoom: {
+              enabled: true,
+          },
+      },
+      dataLabels: {
+          enabled: false,
+      },
+      stroke: {
+          curve: "straight",
+      },
+      title: {
+          text: "Global COVID Trend Since Epoch",
+          align: "left",
+      },
+      grid: {
+          row: {
+              colors: ["#f3f3f3", "transparent"], // takes an array which will be repeated on columns
+              opacity: 0.5,
+          },
+      },
+      xaxis: {
+          // dates
+          categories: [],
+      },
+  };
+
+
+
+    // return a Spinner when loading is true
+    if (loading) return <span>Loading</span>;
+
+    // data will be null when fetch call fails
+    if (!data) return <span>Data not available</span>;
+
+    [series[0].data, options.xaxis.categories] = Object.entries(data.cases);
+
+    return (
+        <div id="chart">
+            <ReactApexChart
+                options={options}
+                series={series}
+                type="line"
+                height={350}
+            />
+        </div>
+    );
+};
+
+
+
+
+
+  /****************************
+   * END CODE FOR LINE GRAPH  *
+   ****************************/
   return (
     <Layout pageName="home">
       <Helmet>
@@ -435,6 +564,8 @@ const IndexPage = () => {
         <TabList>
           <Tab>Global Table</Tab>
           <Tab>US Table</Tab>
+          <Tab>Global Pie Chart</Tab>
+          <Tab>Global Time Series</Tab> 
         </TabList>
 
         <TabPanel>
@@ -443,6 +574,65 @@ const IndexPage = () => {
 
         <TabPanel>
           <Table columns={state_columns} data={state_data}/>
+        </TabPanel>
+
+        <TabPanel>
+          <div>
+            <PieChart
+                  label={(props) => { return props.dataEntry.title;}}
+                  data={pieData}
+                  animate
+                  animationDuration={500}
+                  animationEasing="ease-out"
+                  center={[50, 50]}
+                  lengthAngle={360}
+                  lineWidth={65}
+                  paddingAngle={0}
+                  radius={50}
+                  startAngle={0}
+                  viewBoxSize={[100, 100]}
+                  label={(data) => data.dataEntry.title}
+                  labelPosition={50}
+                  labelStyle={{
+                    fontSize: "5px",
+                    fontColor: "FFFFFA",
+                    fontWeight: "10",
+                  }}
+                     />
+                        <style jsx>{`
+        .chart-container {
+          height: 200px;
+          margin-left: auto;
+          margin-right: auto;
+          width: 200px;
+        }
+
+        .inline-container {
+          align-items: center;
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between;
+          width: 100%;
+        }
+
+        table {
+          margin-left: auto;
+          margin-right: auto;
+          margin-top: 3em;
+          table-layout: fixed;
+          width: 90%;
+        }
+        table tr th {
+          text-align: left;
+          background: gray;
+          color: white;
+        }
+      `}</style>
+                  </div>
+        
+        </TabPanel>
+        <TabPanel>
+          <GlobalTrendGraphFunction/>
         </TabPanel>
       </Tabs>
     </Container>
