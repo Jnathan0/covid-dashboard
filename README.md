@@ -46,3 +46,4 @@ After this, you should be able to access the project on default localhost:8000
 To see the website: refer to our submisson. 
 http://f623-2602-fe90-300-1a2-00-5253-7a80.ngrok.io/
 press advance, and visit site. It is not malicious 
+https://youtu.be/wrJh_T5i5Ks
